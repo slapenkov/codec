@@ -8,6 +8,8 @@
 #ifndef CODEC27_H_
 #define CODEC27_H_
 
+#include <stdlib.h>
+
 /* The two generator polynomials for the NASA Standard K=7 rate 1/2 code. */
 #define	POLYA	0x6d
 #define	POLYB	0x4f
@@ -46,7 +48,7 @@
 
 /* encoder */
 int
-encode27 (unsigned char *symbols, unsigned char *data, unsigned int nbytes);
+encode27(unsigned char *symbols, unsigned char *data, unsigned int nbytes);
 
 #define	BUTTERFLY(i,sym) { \
 	long m0,m1;\
