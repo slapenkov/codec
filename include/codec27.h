@@ -9,6 +9,8 @@
 #define CODEC27_H_
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <math.h>
 
 /* The two generator polynomials for the NASA Standard K=7 rate 1/2 code. */
 #define	POLYA	0x6d
@@ -46,9 +48,55 @@
  * Intel CPU architecture.
  */
 
+/* metric table */
+int mettab[2][256];
+
+/* Normal function integrated from -Inf to x. Range: 0-1 */
+//#define	normal(x)	(0.5 + 0.5*erf((x)/M_SQRT2))
+double
+normal (double x)
+{
+  if (x > 0)
+    {
+      return (0.5 + 0.5 * erf ((x) / M_SQRT2));
+    }
+  else
+    {
+      return (1 - (0.5 + 0.5 * erf ((-x) / M_SQRT2)));
+    }
+}
+
+/* Logarithm base 2 */
+#define	log2(x)	(log(x)*M_LOG2E)
+
+/* Generate log-likelihood metrics for 8-bit soft quantized channel
+ * assuming AWGN and BPSK
+ */
+int
+gen_met (int mettab[2][256], /* Metric table, [sent sym][rx symbol] */
+	 int amp, /* Signal amplitude, units */
+	 double noise, /* Relative noise voltage */
+	 double bias, /* Metric bias; 0 for viterbi, rate for sequential */
+	 int scale /* Scale factor */
+	 );
+
 /* encoder */
 int
-encode27(unsigned char *symbols, unsigned char *data, unsigned int nbytes);
+encode27 (unsigned char *symbols, unsigned char *data, unsigned int nbytes);
+/* Symbols are offset-binary, with 128 corresponding to an erased (no
+ * information) symbol
+ */
+#define	OFFSET	128
+
+/* decoder */
+/* Viterbi decoder */
+int
+viterbi27 (long *metric, /* Final path metric (returned value) */
+	   unsigned char *data, /* Decoded output data */
+	   unsigned char *symbols, /* Raw deinterleaved input symbols */
+	   unsigned int nbits, /* Number of output bits; 2*(nbits+6) input symbols will be read */
+	   int mettab[2][256] /* Metric table, [sent sym][rx symbol] */
+	   );
 
 #define	BUTTERFLY(i,sym) { \
 	long m0,m1;\
