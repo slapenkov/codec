@@ -51,24 +51,6 @@
 /* metric table */
 int mettab[2][256];
 
-/* Normal function integrated from -Inf to x. Range: 0-1 */
-//#define	normal(x)	(0.5 + 0.5*erf((x)/M_SQRT2))
-double
-normal (double x)
-{
-  if (x > 0)
-    {
-      return (0.5 + 0.5 * erf ((x) / M_SQRT2));
-    }
-  else
-    {
-      return (1 - (0.5 + 0.5 * erf ((-x) / M_SQRT2)));
-    }
-}
-
-/* Logarithm base 2 */
-#define	log2(x)	(log(x)*M_LOG2E)
-
 /* Generate log-likelihood metrics for 8-bit soft quantized channel
  * assuming AWGN and BPSK
  */
@@ -94,8 +76,10 @@ int
 viterbi27 (long *metric, /* Final path metric (returned value) */
 	   unsigned char *data, /* Decoded output data */
 	   unsigned char *symbols, /* Raw deinterleaved input symbols */
-	   unsigned int nbits, /* Number of output bits; 2*(nbits+6) input symbols will be read */
-	   int mettab[2][256] /* Metric table, [sent sym][rx symbol] */
+	   int mettab[2][256], /* Metric table, [sent sym][rx symbol] */
+	   int nbits, /* Number of output bits; 2*(nbits+6) input symbols will be read */
+	   unsigned int startstate, /* Encoder starting state */
+	   unsigned int endstate /* Encoder ending state */
 	   );
 
 #define	BUTTERFLY(i,sym) { \

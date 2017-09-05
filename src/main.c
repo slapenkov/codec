@@ -126,7 +126,7 @@ main (int argc, char* argv[])
 
   /* prepare metrics table for rated SNR */
   int amplitude = 100; //signal amplitude
-  double esn0, ebn0, noise;
+  double esn0 = 5.0, ebn0, noise;
   esn0 = ebn0 - 10 * log10 (2.0); /* Es/N0 in dB for Rate=2 */
   /* Compute noise voltage. The 0.5 factor accounts for BPSK seeing
    * only half the noise power, and the sqrt() converts power to
@@ -137,7 +137,7 @@ main (int argc, char* argv[])
 
   /* decode */
   unsigned long metrics;
-  res = viterbi27 (&metrics, decoded, encoded, NBYTES, mettab);
+  res = viterbi27 (&metrics, decoded, encoded, mettab, NBITS, 0, 0);
 
   /* Test results */
   int result = 0;
@@ -164,7 +164,14 @@ main (int argc, char* argv[])
   /* view encoded data */
   trace_printf ("Encoded data:\n");
   for (int i = 0; i < ENCBYTES; i++)
-    trace_printf ("%02x", encoded[i]);
+    {
+      unsigned char sym = encoded[i];
+      for (int j = 0; j < 8; j++)
+	{
+	  trace_printf ("%01x", (sym & 0x80) ? 1 : 0);
+	  sym <<= 1;
+	}
+    }
   trace_printf ("\n\n");
   /*  for (int i = 0; i < ENCBYTES; i++)
    trace_printf ("%c", encoded[i]);
@@ -180,6 +187,7 @@ main (int argc, char* argv[])
       for (int i = 0; i < NBYTES; i++)
 	trace_printf ("%c", decoded[i]);
       trace_printf ("\n\n");
+      trace_puts ("Test ended\n");
     }
   else
     {
